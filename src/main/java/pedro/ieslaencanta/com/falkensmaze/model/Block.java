@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @author Pedro
  */
 @XmlRootElement
-public class Block  {
+public class Block implements Serializable {
     private String value;
     
     public Block(){

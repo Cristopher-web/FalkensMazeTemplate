@@ -12,7 +12,7 @@ import java.io.Serializable;
  * @author Pedro
  */
 @XmlRootElement
-public class Size implements Cloneable, Comparable<Size> {
+public class Size implements Cloneable, Comparable<Size>, Serializable {
     private int width;
     private int height;
    

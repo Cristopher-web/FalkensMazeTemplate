@@ -9,7 +9,7 @@
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-graphics</artifactId>
-            <version>16</version>
+            <version>17.0.0.1</version>
             <type>jar</type>
         </dependency>
         <dependency>

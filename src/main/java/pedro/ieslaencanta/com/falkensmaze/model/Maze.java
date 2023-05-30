@@ -37,7 +37,7 @@ import pedro.ieslaencanta.com.falkensmaze.Size;
  * @author Pedro
  */
 @XmlRootElement
-public class Maze {
+public class Maze implements Serializable{
 
     private Size size;
     private Block[][] blocks;
@@ -153,10 +153,11 @@ public class Maze {
 
     }
 
-    public static void saveBin(Maze maze, File file)  {
+    public static void saveBin(Maze maze, File file) throws IOException  {
       FileOutputStream os = new FileOutputStream(file);
       ObjectOutputStream oos = new ObjectOutputStream(os);
-      Maze m = 
+      oos.writeObject(maze);
+      oos.close();
+      os.close();
     }
-
 }
