@@ -116,8 +116,8 @@ public class Maze implements Serializable{
     public void setBlocks(Block[][] blocks) {
         this.blocks = blocks;
     }
-
-    public static Maze load(File file) throws FileNotFoundException, IOException, ClassNotFoundException  {
+    //Todos los load se pone la extension para que solo acepte ese formato, si no lanza una excepcion
+    public static Maze load(File file) throws FileNotFoundException, IOException, ClassNotFoundException, JAXBException, Exception  {
         String extension = file.getName().substring(file.getName().lastIndexOf(".")+ 1);
         if(extension.equals("bin")){
             return loadBin(file);
@@ -125,10 +125,11 @@ public class Maze implements Serializable{
             return loadXML(file);
         }else if(extension.equals("json")){
             return loadJSON(file);
+        }else{
+             throw new Exception("Tipo no permitido");
         }
-        return null;
     }
-
+    //Todos los save igual que en el load pero en este si la musica no esta puesta este tambien da excepcion
     public static void save(Maze maze, File file) throws Exception {
         String extension = file.getName().substring(file.getName().lastIndexOf(".")+ 1);
         if (maze.sound == null || maze.sound.equals("")) {
@@ -144,28 +145,33 @@ public class Maze implements Serializable{
             throw new Exception("Tipo no permitido");
         }
     }
-
-    private static Maze loadJSON(File file) throws FileNotFoundException  {
-        BufferedReader br = new BufferedReader(file);
-        String json = new Gson().toJson(file);
-        br.
-        return null;
+    //load de JSON este lee el fichero con FileReader se le pasa el file y hacemo un maze con gson.fromJson para
+    //que pueda leer el formato json aparte de que lo pueda poner en el formato que tenemos en nuestra clase.
+    private static Maze loadJSON(File file) throws FileNotFoundException {
+    Gson gson = new Gson();
+    FileReader reader = new FileReader(file);
+    Maze maze = gson.fromJson(reader, Maze.class);
+    return maze;
     }
-
+    //load de XML este se hace con JAXBContext con este sacamos una instacia de la clase para poder leer el fichero xml
+    //y poder ponerlo en formato de clase maze despues con el unmarshaller leemos el fichero y devolvemos el resultado
     private static Maze loadXML(File file) throws JAXBException  {
         JAXBContext context = JAXBContext.newInstance(Maze.class);
         Unmarshaller unmarshaller = context.createUnmarshaller();
         Maze maze = (Maze) unmarshaller.unmarshal(file);
         return maze;  
     }
-
+    //load de bin con este leemos el archivo de binario con FileInputStream y ObjecInputStream creamos una instacia de maza y leemos el
+    //objeto de binario para poder pasarlo a la clase.
     public static Maze loadBin(File file) throws FileNotFoundException, IOException, ClassNotFoundException  {
       FileInputStream os = new FileInputStream(file);
       ObjectInputStream oos = new ObjectInputStream(os);
       Maze m = (Maze) oos.readObject();
       return m;
     }
-
+    //saveJson en este metodo guarda el maze para poder pasarlo a un fichero en formato json
+    //esto se hace a partir del Gson con gson.toJson para darle el formato json y despues guardarlo
+    //en un fichero
     private static void saveJSON(Maze maze, File file) throws IOException  {
       String jsonString;
       GsonBuilder gbu = new GsonBuilder();
@@ -175,14 +181,16 @@ public class Maze implements Serializable{
       fw.write(jsonString);
       fw.close();
     }
-
+    //saveXML se hace con JAXBContext y es basicamente casi igual que el load pero este guarda la clase maze
+    //con el marshaller.setProperty le damos el formato xml y con el marshaller.marshal guardamos el maze en el archivo
     private static void saveXML(Maze maze, File file) throws JAXBException  {
       JAXBContext context = JAXBContext.newInstance(maze.getClass());
       Marshaller marshaller = context.createMarshaller();
       marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
       marshaller.marshal(maze, file);
     }
-
+    //saveBin se hace con fileoutputstream este guarda la maze en binario, con el objextooutputstream ya que maze es un objeto
+    //escribimos en el fichero el maze oos.writeObject despues cerramos el fileoutputstream y el objectoutputstream
     public static void saveBin(Maze maze, File file) throws IOException  {
       FileOutputStream os = new FileOutputStream(file);
       ObjectOutputStream oos = new ObjectOutputStream(os);
