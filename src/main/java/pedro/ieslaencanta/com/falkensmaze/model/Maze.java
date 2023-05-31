@@ -12,10 +12,12 @@ import jakarta.xml.bind.Marshaller;
 import jakarta.xml.bind.Unmarshaller;
 
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -117,6 +119,13 @@ public class Maze implements Serializable{
 
     public static Maze load(File file) throws FileNotFoundException, IOException, ClassNotFoundException  {
         String extension = file.getName().substring(file.getName().lastIndexOf(".")+ 1);
+        if(extension.equals("bin")){
+            return loadBin(file);
+        }else if(extension.equals("xml")){
+            return loadXML(file);
+        }else if(extension.equals("json")){
+            return loadJSON(file);
+        }
         return null;
     }
 
@@ -136,7 +145,10 @@ public class Maze implements Serializable{
         }
     }
 
-    private static Maze loadJSON(File file)  {
+    private static Maze loadJSON(File file) throws FileNotFoundException  {
+        BufferedReader br = new BufferedReader(file);
+        String json = new Gson().toJson(file);
+        br.
         return null;
     }
 
@@ -154,11 +166,14 @@ public class Maze implements Serializable{
       return m;
     }
 
-    private static void saveJSON(Maze maze, File file)  {
+    private static void saveJSON(Maze maze, File file) throws IOException  {
       String jsonString;
       GsonBuilder gbu = new GsonBuilder();
       Gson gson = gbu.create();
       jsonString = gson.toJson(maze);
+      FileWriter fw = new FileWriter(file);
+      fw.write(jsonString);
+      fw.close();
     }
 
     private static void saveXML(Maze maze, File file) throws JAXBException  {
