@@ -5,6 +5,7 @@
 package pedro.ieslaencanta.com.falkensmaze.model;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import jakarta.xml.bind.JAXBContext;
 import jakarta.xml.bind.JAXBException;
 import jakarta.xml.bind.Marshaller;
@@ -26,6 +27,7 @@ import java.io.Serializable;
 
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Type;
 
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -114,43 +116,56 @@ public class Maze implements Serializable{
     }
 
     public static Maze load(File file) throws FileNotFoundException, IOException, ClassNotFoundException  {
-        FileInputStream os = new FileInputStream(file);
-        ObjectInputStream oos = new ObjectInputStream(os);
-        Maze m = (Maze) oos.readObject();
-        oos.close();
-        os.close();
-        return m;
+        String extension = file.getName().substring(file.getName().lastIndexOf(".")+ 1);
+        return null;
     }
 
     public static void save(Maze maze, File file) throws Exception {
+        String extension = file.getName().substring(file.getName().lastIndexOf(".")+ 1);
         if (maze.sound == null || maze.sound.equals("")) {
             throw new Exception("Es necesario indicar el sonido del laberinto");
         }
-      
+        if(extension.equals("bin")){
+            saveBin(maze, file);
+        }else if(extension.equals("xml")){
+            saveXML(maze, file);
+        }else if(extension.equals("json")){
+            saveJSON(maze, file);
+        }else{
+            throw new Exception("Tipo no permitido");
+        }
     }
 
     private static Maze loadJSON(File file)  {
         return null;
     }
 
-    private static Maze loadXML(File file)  {
-
-        return null;
-          
+    private static Maze loadXML(File file) throws JAXBException  {
+        JAXBContext context = JAXBContext.newInstance(Maze.class);
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        Maze maze = (Maze) unmarshaller.unmarshal(file);
+        return maze;  
     }
 
-    public static Maze loadBin(File file)  {
-      
-        return null;
+    public static Maze loadBin(File file) throws FileNotFoundException, IOException, ClassNotFoundException  {
+      FileInputStream os = new FileInputStream(file);
+      ObjectInputStream oos = new ObjectInputStream(os);
+      Maze m = (Maze) oos.readObject();
+      return m;
     }
 
     private static void saveJSON(Maze maze, File file)  {
-      
+      String jsonString;
+      GsonBuilder gbu = new GsonBuilder();
+      Gson gson = gbu.create();
+      jsonString = gson.toJson(maze);
     }
 
-    private static void saveXML(Maze maze, File file)  {
-      
-
+    private static void saveXML(Maze maze, File file) throws JAXBException  {
+      JAXBContext context = JAXBContext.newInstance(maze.getClass());
+      Marshaller marshaller = context.createMarshaller();
+      marshaller.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+      marshaller.marshal(maze, file);
     }
 
     public static void saveBin(Maze maze, File file) throws IOException  {
